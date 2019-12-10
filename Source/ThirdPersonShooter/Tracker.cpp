@@ -27,14 +27,14 @@ ATracker::ATracker()
 	MeshComp->SetSimulatePhysics(true);
 	//MeshComp->SetupAttachment(RootComponent);
 	MeshComp->SetCanEverAffectNavigation(false);
-	MoveForce = 1000;
+	MoveForce = 100.0f;
 	bUseVelocityChange = true;
 
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	HealthComp->OnHealthChanged.AddDynamic(this, &ATracker::OnHealthChanged);
 
 	SelfDamageTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("Self Damage Trigger"));
-	SelfDamageTrigger->SetSphereRadius(200);
+	SelfDamageTrigger->SetSphereRadius(200.0f);
 	SelfDamageTrigger->SetupAttachment(RootComponent);
 	SelfDamageTrigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SelfDamageTrigger->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
@@ -69,6 +69,14 @@ void ATracker::Tick(float DeltaTime)
 		force *= MoveForce;
 		MeshComp->AddForce(force, NAME_None, bUseVelocityChange);
 		DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + force, 20, FColor::Blue, false,2 * DeltaTime, 0, 3);
+	}
+
+	bRolling = !GetVelocity().IsNearlyZero(); //may require tolerance adjustments
+
+	//Friendly Warning: Get all your pointers referenced in blueprints
+	if (bRolling && !RollSound->IsLooping()) {
+		//attaches sound to root component and no name point, snaps to target and destroys when the component is destroyed:
+		UGameplayStatics::SpawnSoundAttached(RollSound, RootComponent, "", GetActorLocation(), EAttachLocation::SnapToTarget, true);
 	}
 }
 

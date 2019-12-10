@@ -35,6 +35,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tracker Properties")
 	bool bUseVelocityChange;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tracker Properties")
+	USoundCue* RollSound;
+	bool bRolling;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tracker Properties")
+	USoundCue* HitSound;
+
 	// Health Params
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tracker Properties")
 	UHealthComponent* HealthComp;
