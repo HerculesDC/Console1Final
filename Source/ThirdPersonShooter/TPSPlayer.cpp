@@ -28,6 +28,8 @@ void ATPSPlayer::EndZoom()
 	CameraComp->SetFieldOfView(defaultFOV);
 }
 
+void ATPSPlayer::Jump() { ACharacter::Jump(); }
+
 // Called to bind functionality to input
 void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -43,6 +45,7 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &ATPSPlayer::StartFire);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &ATPSPlayer::EndFire);
 	PlayerInputComponent->BindAction("TakeCover", IE_Pressed, this, &ATPSPlayer::TakeCover);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 }
 
 FVector ATPSPlayer::GetPawnViewLocation() const

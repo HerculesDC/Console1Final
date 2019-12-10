@@ -4,15 +4,17 @@
 #include "TPSWeapon.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
-#include "Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStatics.h" //for damage and particle effects
 #include "Components/SkeletalMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 #include "TimerManager.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "ThirdPersonShooter.h"
 
+//for debug draw purposes
 int32 DebugDrawWeapons = 0;
-
+//FAutoConsoleVariableRef takes a text, a reference variable, and an event in its constructor
 FAutoConsoleVariableRef CVARDrawWeapons = FAutoConsoleVariableRef(
 	TEXT("TPS.DebugDrawWeapons"),
 	DebugDrawWeapons,
@@ -56,7 +58,7 @@ void ATPSWeapon::EndFire()
 
 void ATPSWeapon::Fire()
 {
-
+	//Create, or rather, get a reference to an owner. It was originally an actor, later refactored into a pawn
 	APawn* MyOwner = Cast<APawn>(GetOwner());
 
 	if (MyOwner)
@@ -104,21 +106,25 @@ void ATPSWeapon::Fire()
 
 			UGameplayStatics::ApplyPointDamage(HitActor, DamageToApply, EyeRot.Vector(), Hit, MyOwner->GetInstigatorController(), this, DamageType);
 
-			TrailEnd = Hit.ImpactPoint;
+			TrailEnd = Hit.ImpactPoint; //gotta read the smoke trail end
 			if (ImpactEffectToPlay)
 			{
+				//the effect that takes place when it hits. Different effects go here
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffectToPlay, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 			}
 		}
 
-		if (MuzzleEffect)
-		{
-			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComp, MuzzleSocketName);
-		}
-
 		FVector MuzzlePosition = MeshComp->GetSocketLocation(MuzzleSocketName);
 
-		if (TrailEffect)
+		if (MuzzleEffect)
+		{
+			//fires from the muzzle.
+			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, (USceneComponent*)MeshComp, MuzzleSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
+		}
+
+		
+
+		if (TrailEffect) //smoke trail
 		{
 			UParticleSystemComponent* TrailComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrailEffect, MuzzlePosition);
 
@@ -139,6 +145,7 @@ void ATPSWeapon::Fire()
 		{
 			PlayerController->ClientPlayCameraShake(FireCameraShake);
 		}
+		UGameplayStatics::SpawnSoundAtLocation(this, ShotSoundFX, MuzzlePosition);
 	}
 
 

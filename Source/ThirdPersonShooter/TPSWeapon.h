@@ -7,6 +7,7 @@
 #include "TPSWeapon.generated.h"
 
 class UCameraShake;
+class USoundCue;
 
 UCLASS()
 class THIRDPERSONSHOOTER_API ATPSWeapon : public AActor
@@ -20,9 +21,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	//USkeletalMeshComponent* MeshComp;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
@@ -51,20 +49,24 @@ protected:
 	FTimerHandle BulletTimer;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	float BaseDamage = 20;
+	float BaseDamage;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	float DamageMultiplier = 4;
+	float DamageMultiplier;
 
-public:	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	USoundCue* ShotSoundFX;
+
+public:
+	//Static Mesh component. Public for exchangeability
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USkeletalMeshComponent* MeshComp;
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	//Firing-related functions. Overridable
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void Fire();
-	
-	void StartFire();
-
-	void EndFire();
+	virtual void Fire();	
+	virtual void StartFire();
+	virtual void EndFire();
 };

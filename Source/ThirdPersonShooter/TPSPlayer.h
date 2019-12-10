@@ -18,6 +18,7 @@ class THIRDPERSONSHOOTER_API ATPSPlayer : public ATPSCharacter
 public:
 	ATPSPlayer();
 protected:
+	void Jump();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
