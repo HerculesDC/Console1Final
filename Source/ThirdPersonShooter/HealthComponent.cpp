@@ -2,8 +2,9 @@
 
 
 #include "HealthComponent.h"
-#include "GameFramework/Actor.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -13,6 +14,7 @@ UHealthComponent::UHealthComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
+	Health = MaxHealth;
 }
 
 
@@ -26,8 +28,7 @@ void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	Health = MaxHealth;
+	if (Health != MaxHealth) Health = MaxHealth;
 
 	AActor* myOwner = GetOwner();
 
@@ -36,6 +37,31 @@ void UHealthComponent::BeginPlay()
 		myOwner->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::HandleTakeAnyDamage);
 	}
 	
+}
+
+void UHealthComponent::Regenerate() {
+	
+	if (bCanRegen) {
+		AActor* MyOwner = Cast<AActor>(GetOwner());
+		if (MyOwner && Health < MaxHealth) {
+			bRegenerating = true;
+			this->HandleTakeAnyDamage(MyOwner, -RegenAmount, nullptr, MyOwner->GetInstigatorController(), MyOwner);
+		}
+		else {
+			StopRegen();
+		}
+	}
+}
+
+void UHealthComponent::StartRegen() {
+	
+	GetWorld()->GetTimerManager().SetTimer(RegenTimer, this, &UHealthComponent::Regenerate, RegenRate, true, RegenDelay);
+}
+
+void UHealthComponent::StopRegen() {
+
+	bRegenerating = false;
+	GetWorld()->GetTimerManager().ClearTimer(RegenTimer);
 }
 
 
@@ -49,9 +75,13 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
-	if (Damage <= 0.0f)
+	if (Damage == 0.0f)
 	{
 		return;
+	}
+	else if (Damage > 0)
+	{
+		StartRegen();
 	}
 
 	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);

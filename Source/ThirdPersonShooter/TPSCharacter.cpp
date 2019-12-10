@@ -132,6 +132,10 @@ void ATPSCharacter::StartFire()
 	{
 		CurrentWeapon->StartFire();
 	}
+
+	if (HealthComp->GetCanRegen()) {
+		HealthComp->StopRegen();
+	}
 }
 
 void ATPSCharacter::EndFire()
@@ -139,6 +143,10 @@ void ATPSCharacter::EndFire()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->EndFire();
+	}
+
+	if (HealthComp->GetCanRegen()) {
+		HealthComp->StartRegen();
 	}
 }
 
@@ -176,6 +184,10 @@ void ATPSCharacter::DetatchWeapon()
 }
 void ATPSCharacter::OnHealthChanged(UHealthComponent* OwningHealthComp, float Health, float DeltaHealth, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
+	if (DeltaHealth > 0) {
+		HealthComp->StopRegen();
+	}
+
 	if (Health <= 0)
 	{
 		bDead = true;

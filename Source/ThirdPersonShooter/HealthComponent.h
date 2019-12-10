@@ -24,7 +24,7 @@ protected:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Health")
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Health")
 	float Health;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
@@ -33,7 +33,31 @@ protected:
 	UFUNCTION()
 	void HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
+	//Regeneration Parameters:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Regeneration Parameters")
+	float RegenDelay;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Regeneration Parameters")
+	float RegenRate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Regeneration Parameters")
+	float RegenAmount;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Regeneration Parameters")
+	bool bCanRegen;
+	UPROPERTY(BlueprintReadOnly, Category = "Regeneration Parameters")
+	bool bRegenerating;
+	FTimerHandle RegenTimer;
+
+	UFUNCTION()
+	void Regenerate();
+
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnHealthChangedSignature OnHealthChanged;
+
+	UFUNCTION()
+	bool GetCanRegen() { return (bCanRegen && !bRegenerating); }
+
+	UFUNCTION(BlueprintCallable)
+	void StartRegen();
+	UFUNCTION(BlueprintCallable)
+	void StopRegen();
 };
